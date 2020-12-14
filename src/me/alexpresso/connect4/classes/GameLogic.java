@@ -4,6 +4,7 @@ import me.alexpresso.connect4.classes.grid.Grid;
 import me.alexpresso.connect4.classes.grid.GridLocation;
 import me.alexpresso.connect4.exceptions.LocationException;
 
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -15,9 +16,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class GameLogic {
     private GameLogic() {}
 
-    public static final int WIN_ADJACENTS = 4;
-
-    public static boolean hasWon(final Grid grid, final int placedX, final int placedY) throws LocationException {
+    public static boolean hasWon(final Grid grid, final int placedX, final int placedY, final int winAdjacents) throws LocationException {
         final GridLocation location = grid.get(placedX, placedY)
             .orElseThrow(() -> new LocationException("Cannot find location"));
 
@@ -37,7 +36,7 @@ public class GameLogic {
         final AtomicBoolean prevATop = new AtomicBoolean(true);
         final AtomicBoolean prevABot = new AtomicBoolean(true);
 
-        for(int i = 1; i <= WIN_ADJACENTS - 1; i++) {
+        for(int i = 1; i <= winAdjacents - 1; i++) {
             final int leftX = placedX - i;
             final int rightX = placedX + i;
             final int topY = placedY + i;
@@ -68,14 +67,23 @@ public class GameLogic {
                 grid.get(leftX, botY, whoPlayed).ifPresentOrElse(z -> zAdjacents.getAndIncrement(), () -> prevZBot.set(false));
 
             if(
-                xAdjacents.get() == WIN_ADJACENTS ||
-                yAdjacents.get() == WIN_ADJACENTS ||
-                zAdjacents.get() == WIN_ADJACENTS ||
-                aAdjacents.get() == WIN_ADJACENTS
+                xAdjacents.get() == winAdjacents ||
+                yAdjacents.get() == winAdjacents ||
+                zAdjacents.get() == winAdjacents ||
+                aAdjacents.get() == winAdjacents
             )
                 return true;
         }
 
         return false;
+    }
+
+    public static Player nextPlayer(final Player playing, final List<Player> players) {
+        final int idx = players.indexOf(playing);
+
+        if(idx < players.size() - 1)
+            return players.get(idx + 1);
+
+        return players.get(0);
     }
 }

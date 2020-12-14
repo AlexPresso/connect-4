@@ -12,11 +12,11 @@ import javax.swing.*;
 public class GridLocation {
     private Player player;
     private int column;
-    private final JCheckBox checkBox;
+    private final JButton coinPlace;
 
 
-    public GridLocation(final JCheckBox checkBox, final int column) {
-        this.checkBox = checkBox;
+    public GridLocation(final JButton coinPlace, final int column) {
+        this.coinPlace = coinPlace;
         this.player = null;
         this.column = column;
     }
@@ -31,8 +31,7 @@ public class GridLocation {
             throw new CheatException("Cheater !");
 
         this.player = player;
-        this.checkBox.setForeground(player.getColor());
-        this.checkBox.setBackground(player.getColor());
+        this.coinPlace.setBackground(player.getColor().getColor());
 
         return this;
     }
