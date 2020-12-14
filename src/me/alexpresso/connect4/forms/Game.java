@@ -84,12 +84,13 @@ public class Game {
                 ((JButton) e.getSource()).setEnabled(false);
 
             if(GameLogic.hasWon(this.grid, i, lastInserted)) {
-                System.out.println(String.format("Well done %s", playing.getName()));
+                JOptionPane.showMessageDialog(this.mainPanel, String.format("%s won !", playing.getName()));
+                System.exit(0);
             }
 
             this.turn++;
         } catch (CheatException | LocationException ex) {
-            System.out.println(ex.getMessage());
+            JOptionPane.showMessageDialog(this.mainPanel, ex.getMessage());
         }
     }
 

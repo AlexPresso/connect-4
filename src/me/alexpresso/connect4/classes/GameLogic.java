@@ -4,6 +4,7 @@ import me.alexpresso.connect4.classes.grid.Grid;
 import me.alexpresso.connect4.classes.grid.GridLocation;
 import me.alexpresso.connect4.exceptions.LocationException;
 
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 
@@ -27,23 +28,44 @@ public class GameLogic {
         final AtomicInteger zAdjacents = new AtomicInteger(1);
         final AtomicInteger aAdjacents = new AtomicInteger(1);
 
+        final AtomicBoolean prevXLeft = new AtomicBoolean(true);
+        final AtomicBoolean prevXRight = new AtomicBoolean(true);
+        final AtomicBoolean prevYTop = new AtomicBoolean(true);
+        final AtomicBoolean prevYBot = new AtomicBoolean(true);
+        final AtomicBoolean prevZTop = new AtomicBoolean(true);
+        final AtomicBoolean prevZBot = new AtomicBoolean(true);
+        final AtomicBoolean prevATop = new AtomicBoolean(true);
+        final AtomicBoolean prevABot = new AtomicBoolean(true);
+
         for(int i = 1; i <= WIN_ADJACENTS - 1; i++) {
             final int leftX = placedX - i;
             final int rightX = placedX + i;
             final int topY = placedY + i;
             final int botY = placedY - i;
 
-            //Horizontal & Vertical
-            grid.get(leftX, placedY, whoPlayed).ifPresent(x -> xAdjacents.getAndIncrement());
-            grid.get(rightX, placedY, whoPlayed).ifPresent(x -> xAdjacents.getAndIncrement());
-            grid.get(placedX, topY, whoPlayed).ifPresent(y -> yAdjacents.getAndIncrement());
-            grid.get(placedX, botY, whoPlayed).ifPresent(y -> yAdjacents.getAndIncrement());
+            //Horizontal
+            if(prevXLeft.get())
+                grid.get(leftX, placedY, whoPlayed).ifPresentOrElse(x -> xAdjacents.getAndIncrement(), () -> prevXLeft.set(false));
+            if(prevXRight.get())
+                grid.get(rightX, placedY, whoPlayed).ifPresentOrElse(x -> xAdjacents.getAndIncrement(), () -> prevXRight.set(false));
 
-            //Diagonals
-            grid.get(leftX, topY, whoPlayed).ifPresent(a -> aAdjacents.getAndIncrement());
-            grid.get(rightX, botY, whoPlayed).ifPresent(a -> aAdjacents.getAndIncrement());
-            grid.get(rightX, topY, whoPlayed).ifPresent(z -> zAdjacents.getAndIncrement());
-            grid.get(leftX, botY, whoPlayed).ifPresent(z -> zAdjacents.getAndIncrement());
+            //Vertical
+            if(prevYTop.get())
+                grid.get(placedX, topY, whoPlayed).ifPresentOrElse(y -> yAdjacents.getAndIncrement(), () -> prevYTop.set(false));
+            if(prevYBot.get())
+                grid.get(placedX, botY, whoPlayed).ifPresentOrElse(y -> yAdjacents.getAndIncrement(), () -> prevYBot.set(false));
+
+            //Diagonal A
+            if(prevATop.get())
+                grid.get(leftX, topY, whoPlayed).ifPresentOrElse(a -> aAdjacents.getAndIncrement(), () -> prevATop.set(false));
+            if(prevABot.get())
+                grid.get(rightX, botY, whoPlayed).ifPresentOrElse(a -> aAdjacents.getAndIncrement(), () -> prevABot.set(false));
+
+            //Diagonal Z
+            if(prevZTop.get())
+                grid.get(rightX, topY, whoPlayed).ifPresentOrElse(z -> zAdjacents.getAndIncrement(), () -> prevZTop.set(false));
+            if(prevZBot.get())
+                grid.get(leftX, botY, whoPlayed).ifPresentOrElse(z -> zAdjacents.getAndIncrement(), () -> prevZBot.set(false));
 
             if(
                 xAdjacents.get() == WIN_ADJACENTS ||
